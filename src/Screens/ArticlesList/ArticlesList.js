@@ -6,6 +6,7 @@ import {
     SafeAreaView,
     TouchableOpacity,
     Image,
+    Alert
 } from 'react-native';
 
 import { connect } from 'react-redux';
@@ -22,34 +23,61 @@ import {
 
 import { getListApiIntegrationMethod } from '../../ActionCreator/GetListActionCreator';
 
-
+import Periods from './Periods';
 
  class ArticlesList extends Component {
   
+    period = "1";
+    key='46zR2K9xs24YVsCpCFF5pLOH4Xn3OA9B';
+
     constructor(props) {
         super(props);
+
+        this.state={
+            isPeriodSelection: false
+        }
     }
 
     UNSAFE_componentWillMount() {
-        this.getListMethod("7")
+        this.getListMethod(this.period)
     }
 
     getListMethod(period) {
-        URL = "https://api.nytimes.com/svc/mostpopular/v2/viewed/"+period+".json?api-key=46zR2K9xs24YVsCpCFF5pLOH4Xn3OA9B"
+        URL = "https://api.nytimes.com/svc/mostpopular/v2/viewed/"+period+".json?api-key="+this.key
          this.props.getListApiIntegrationMethod(URL)
     }
 
     // Move to detail screen 
-    showArticleDetail(){
-        this.props.navigation.navigate('NListDetail');
+    showArticleDetail(articleInfo){
+        this.props.navigation.navigate('NListDetail',
+        {
+            article: articleInfo
+        });
     }
 
     onPressRightButtons(data){
         console.log('this is item,key', data);
+        switch (data.type) {
+            case 'more':
+                this.setState({
+                    isPeriodSelection: true
+                })
+                break;
+            default:
+                Alert.alert('Action',data.type);
+        }
     }
 
     onToggleMenu() {
+        this.props.navigation.openDrawer();
+    }
 
+    onPeriodChange(period) {
+        this.period = period
+        this.getListMethod(this.period)
+        this.setState({
+            isPeriodSelection: false
+        })
     }
 
     
@@ -61,6 +89,11 @@ import { getListApiIntegrationMethod } from '../../ActionCreator/GetListActionCr
             style={{
                 flex: 1
             }}>
+                { this.state.isPeriodSelection && 
+                    <Periods
+                    period={this.period}
+                    changePeriod={(period) => this.onPeriodChange.bind(this, period)}/>
+                }
             <View
             style={{
                 flex: 1
@@ -97,7 +130,7 @@ import { getListApiIntegrationMethod } from '../../ActionCreator/GetListActionCr
             }}>
                 {this.articleImage(item)}
                 {this.articleInfo(item)}
-                {this.detailButton()}
+                {this.detailButton(index)}
             </View>
         );
     }
@@ -147,10 +180,10 @@ import { getListApiIntegrationMethod } from '../../ActionCreator/GetListActionCr
         );
     }
 
-    detailButton() {
+    detailButton(index) {
         return(
         <TouchableOpacity
-        onPress={() => this.showArticleDetail()}
+        onPress={() => this.showArticleDetail(this.props.responseContainer[index])}
         style={{
             width: 40,
             alignItems: 'center',
@@ -167,7 +200,6 @@ import { getListApiIntegrationMethod } from '../../ActionCreator/GetListActionCr
  const mapDispatchToProps = dispatch => {
     return {
         getListApiIntegrationMethod: () => dispatch(getListApiIntegrationMethod(URL))
-      
     }
   };
 

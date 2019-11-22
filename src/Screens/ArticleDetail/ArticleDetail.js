@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import {
     View,
     SafeAreaView,
+    Image,
+    Text,
 } from 'react-native';
 
 
@@ -23,6 +25,10 @@ export default class ArticleDetail extends Component {
     }
 
     render() {
+        console.log('article detail props', this.props.navigation.state.params.article)
+        const article = this.props.navigation.state.params.article;
+        const media = article.media[0];
+        const metadata = media["media-metadata"][media["media-metadata"].length - 1];
         return(
             <SafeAreaView
             style={{
@@ -33,12 +39,40 @@ export default class ArticleDetail extends Component {
                     flex: 1,
                 }}>
                     <Header
-                        title={'NY Time Most Popular'}
+                        title={article.section}
                         leftButtonImage={ICON_BACK_ARROW}
                         leftButtonAction={() => this.goBackToList.bind(this)} 
                     />
+
+                    <Text
+                    style = {{
+                        fontSize: 20,
+                        fontWeight: 'bold',
+                        margin: 10,
+                    }}>{article.title}</Text>
+
+                    <View
+                    style={{
+                        alignItems: 'center',
+                        height: metadata.height,
+                    }}>
+                    <Image
+                    style={{
+                        height: metadata.height,
+                        width: '100%'
+                    }}
+                    source={{uri: metadata.url}}
+                    />
+                    </View>
+
+                    <Text
+                    style={{
+                        margin: 10
+                    }}>{article.abstract}</Text>
                 </View>
             </SafeAreaView>
         );
     }
+
+
 }
